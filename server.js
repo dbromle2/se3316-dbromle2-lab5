@@ -531,6 +531,8 @@ router.get("/", (req,res)=>{
 }
 
 {/*--------------- ADMIN FUNCTIONALITY ---------------*/
+    //Requirement 5.a. - Special admin access
+
     /*--------------- PUTs ---------------*/
 
     //Requirement 5.b. - Admin can grant admin access
@@ -542,6 +544,23 @@ router.get("/", (req,res)=>{
 
         let user = uData.find(u => u.username == username);
         user.privileges = "admin";
+
+        let newUser = JSON.stringify(uData);
+        fs.writeFileSync("./database/users.json", newUser);
+
+        res.send(user);
+    });
+
+    //Requirement 5.d. - Admin can deactivate/reactivate accounts
+    app.put("/admin/active/:username", (req,res)=>{
+        //throw error if the username does not exist
+        let username = req.params.username;
+        let exists = uData.filter(u => u.username == username);
+        if (exists.length == 0) return res.status(400).send("Invalid account username");
+
+        let user = uData.find(u => u.username == username);
+        if (user.active == "active") user.active = "inactive";
+        else user.active = "active";
 
         let newUser = JSON.stringify(uData);
         fs.writeFileSync("./database/users.json", newUser);
