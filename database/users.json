@@ -1,0 +1,16 @@
+[
+    {
+        "username": "admin",
+        "password": "password1234",
+        "displayName": "Admin",
+        "privileges": "admin",
+        "active": "active"
+    },
+    {
+        "username": "kyle",
+        "password": "monster",
+        "displayName": "Kyle",
+        "privileges": "standard",
+        "active": "active"
+    }
+]

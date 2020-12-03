@@ -16,6 +16,9 @@ let sData = JSON.parse(rawScheduleData);
 let rawPolicyData = fs.readFileSync("./database/site-policies.json");
 let sitePolicies = JSON.parse(rawPolicyData);
 
+let rawUserData = fs.readFileSync("./database/users.json");
+let uData = JSON.parse(rawUserData);
+
 // serve files in static' folder at root URL '/'
 app.use('/', express.static('static'));
 
@@ -524,6 +527,26 @@ router.get("/", (req,res)=>{
         fsfs.writeFileSync("./schedule.json", newSchedule);
 
         res.send(sData);
+    });
+}
+
+{/*--------------- ADMIN FUNCTIONALITY ---------------*/
+    /*--------------- PUTs ---------------*/
+
+    //Requirement 5.b. - Admin can grant admin access
+    app.put("/admin/grant/:username", (req,res)=>{
+        //throw error if the username does not exist
+        let username = req.params.username;
+        let exists = uData.filter(u => u.username == username);
+        if (exists.length == 0) return res.status(400).send("Invalid account username");
+
+        let user = uData.find(u => u.username == username);
+        user.privileges = "admin";
+
+        let newUser = JSON.stringify(uData);
+        fs.writeFileSync("./database/users.json", newUser);
+
+        res.send(user);
     });
 }
 
