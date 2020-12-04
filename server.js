@@ -428,13 +428,17 @@ router.get("/", (req,res)=>{
             
             let user = uData.find(u => u.email == email);
             if (user.password == password){
-                
+                //Requirement 2.e. - Display error message on inactive account login attempt
+                if (user.active == "inactive") res.status(400).send("Login failed! Your account has been marked inactive, please contact the website admins to rectify this.");
+                //Requirement 2.d. - Display error message if account not verified
+                else if (user.verified != "verified") res.status(400).send("Login failed! Please verify your account.");
+                else {
                     let myArr = [];
                     myArr[0] = user.username;
                     myArr[1] = user.privileges;
 
                     return res.send(myArr);
-                
+                }
             } else res.status(400).send("Login failed! Incorrect password, try again.");
         } else res.status(400).send("Login failed!");
     });
