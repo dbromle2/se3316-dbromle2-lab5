@@ -357,35 +357,38 @@ router.get("/", (req,res)=>{
             res.send(myArr);
         } else res.status(400).send("Invalid input(s).");
     });
-    //Component specified
-    app.get("/courses/:subject/:course/:component", (req, res) => {
-        let sInvalid = req.params.subject.toUpperCase();
-        let corInvalid = req.params.course.toUpperCase();
-        let comInvalid = req.params.component.toUpperCase();
+    //Requirement 3.c. - Expand search result to show all remaining info
+    app.get("/courses/:subject/:course/more", (req,res)=>{
+        let sInvalid = req.params.subject;
+        let corInvalid = req.params.course;
         let myArr = [];
 
         //Input validation (code from lab 1)
         let alpha = /^[0-9a-zA-Z]*$/;
         let validate = alpha.exec(sInvalid); //validate the string
         let validate1 = alpha.exec(corInvalid);
-        let validate2 = alpha.exec(comInvalid);
-        let isStringValid = Boolean(validate && validate1 && validate2);
+        let isStringValid = Boolean(validate && validate1);
         let s = validate;
         let cor = validate1;
-        let com = validate2;
 
-        console.log(s + " " + cor + " " + com + " "); //testing
-
-        if (isStringValid) {
-            const course = courses.filter(c => (c.subject == s) && (c.catalog_nbr == cor) && (c.course_info[0].ssr_component == com));
-            if (course.length == 0) res.status(404).send("A course in this configuration does not exist.");
+        if (isStringValid){
+            const course = courses.filter(c => (c.subject == s) && (c.catalog_nbr == cor));
+            if (course.length == 0) res.status(404).send("This subject code doesn't exist.");
 
             for (var i = 0; i < course.length; i++) {
-                myArr[i] = "Start time: " + course[i].course_info[0].start_time + " End time: " + course[i].course_info[0].end_time + " on " + course[i].course_info[0].days;
+                myArr[0] = course[i].course_info[0].class_nbr;
+                myArr[1] = course[i].course_info[0].start_time;
+                myArr[2] = course[i].course_info[0].descrlong;
+                myArr[3] = course[i].course_info[0].end_time;
+                myArr[4] = course[i].course_info[0].facility_ID;
+                myArr[5] = course[i].course_info[0].days;
+                myArr[6] = course[i].course_info[0].instructors;
+                myArr[7] = course[i].course_info[0].enrl_stat;
+                myArr[7] = course[i].course_info[0].descr;
+                myArr[7] = course[i].catalog_description;
             }
-
             res.send(myArr);
-        } else res.status(400).send("Invalid input(s).");
+        } else res.status(400).send("Invalid input(s).")
     });
 
     //Step 6 Get list of subject code,course code pairs for schedule
