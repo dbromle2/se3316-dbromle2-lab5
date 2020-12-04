@@ -401,6 +401,43 @@ router.get("/", (req,res)=>{
         res.send(myArr);
     });
 
+    //Requirement 2.a. - Login mechanism
+    app.get("/login/:email/:password", (req,res)=>{
+        //validate the inputs
+        let emailInvalid = req.params.email;
+        let passwordInvalid = req.params.password;
+
+        //Requirement 2.c. - Input validation for email
+        /*regex taken from https://www.w3.org/TR/2012/WD-html-markup-20120329/input.email.html
+        (why build my own when I can use the official one?)*/
+        let emailRegex = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/ 
+        let isEmailValid = emailRegex.test(emailInvalid);
+
+        //password regex: minimum of 8, maximum of 20 of any combination of characters, numbers, and select special characters
+        let passwordRegex = /^[a-zA-z0-9!@#$%*&]{8,20}$/;
+        let isPasswordValid = Boolean(passwordRegex.exec(passwordInvalid));
+
+        if (isEmailValid && isPasswordValid){
+            //now define the valid inputs
+            let email = emailInvalid;
+            let password = passwordInvalid;
+
+            //throw error if the schedule name does not exist
+            let accountExists = uData.filter(u => u.email == email);
+            if (accountExists.length == 0) return res.status(400).send("That email is not associated with an account");
+            
+            let user = uData.find(u => u.email == email);
+            if (user.password == password){
+                
+                    let myArr = [];
+                    myArr[0] = user.username;
+                    myArr[1] = user.privileges;
+
+                    return res.send(myArr);
+                
+            } else res.status(400).send("Login failed! Incorrect password, try again.");
+        } else res.status(400).send("Login failed!");
+    });
     //Requirement 7.a. - Publicly accessible security and privacy policy
     app.get("/security-privacy-policy", (req,res)=>{
         res.send(sitePolicies.securityPrivacy);
@@ -541,7 +578,7 @@ router.get("/", (req,res)=>{
 
     //Requirement 2.d. - Verification of email
     app.put("/verify/:email", (req,res)=>{
-        //just in case, verify it again
+        //just in case, validate it again
         let emailInvalid = req.params.email;
 
         //Requirement 2.c. - Input validation for email
