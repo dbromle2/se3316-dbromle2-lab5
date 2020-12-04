@@ -456,27 +456,6 @@ router.get("/", (req,res)=>{
         } else res.status(400).send("Invalid input(s).")
     });
 
-    // //Step 6 Get list of subject code,course code pairs for schedule
-    // app.get("/schedule/view/:name", (req, res) => {
-    //     let nameInvalid = req.params.name;
-    //     let myArr = [];
-
-    //     //Input validation (code from lab 1)
-    //     let alpha = /^[0-9a-zA-Z\w\s]*$/;
-    //     let validate = alpha.exec(nameInvalid); //validate the string
-    //     let isStringValid = Boolean(validate);
-    //     let name = validate;
-
-    //     if (isStringValid) {
-    //         const schedule = sData.find(s => s.name == name);
-
-    //         for (var i = 0; i < schedule.sCourses.length; i++) {
-    //             myArr[i] = schedule.sCourses[i];
-    //         }
-    //         res.send(myArr);
-    //     } else res.status(400).send("Invalid input.");
-    // });
-
     //Step 8 Get list of schedule names and number of courses in each
     app.get("/schedule/view", (req, res) => {
         let myArr = [];
