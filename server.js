@@ -8,6 +8,7 @@ const fsfs = require("fs");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
+const bcrypt = require("bcrypt");
 
 let rawdata = fs.readFileSync("./database/Lab3-timetable-data.json");
 let courses = JSON.parse(rawdata);
@@ -533,9 +534,11 @@ router.get("/", (req,res)=>{
             else if (usernameExists.length != 0) return res.status(400).send("This username is taken!");
             else if (emailExists.length != 0) return res.status(400).send("There is already an account registered to this email address!");
 
+            //Hash the password so it's secure
+            const hash = bcrypt.hashSync(password, 10)
             const newUser = {
                 username: username,
-                password: password,
+                password: hash,
                 email: email,
                 privileges: "standard",
                 active: "active"
@@ -557,7 +560,6 @@ router.get("/", (req,res)=>{
 
         //validate the inputs
         let emailInvalid = req.body.email;
-        let passwordInvalid = req.body.password;
 
         //Requirement 2.c. - Input validation for email
         /*regex taken from https://www.w3.org/TR/2012/WD-html-markup-20120329/input.email.html
@@ -565,21 +567,23 @@ router.get("/", (req,res)=>{
         let emailRegex = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/ 
         let isEmailValid = emailRegex.test(emailInvalid);
 
-        //password regex: minimum of 8, maximum of 20 of any combination of characters, numbers, and select special characters
-        let passwordRegex = /^[a-zA-z0-9!@#$%*&]{8,20}$/;
-        let isPasswordValid = Boolean(passwordRegex.exec(passwordInvalid));
+        // //password regex: minimum of 8, maximum of 20 of any combination of characters, numbers, and select special characters
+        // let passwordRegex = /^[a-zA-z0-9!@#$%*&]{8,20}$/;
+        // let isPasswordValid = Boolean(passwordRegex.exec(passwordInvalid));
 
-        if (isEmailValid && isPasswordValid){
+
+
+        if (isEmailValid){
             //now define the valid inputs
             let email = emailInvalid;
-            let password = passwordInvalid;
+            let password = req.body.password;
 
             //throw error if the schedule name does not exist
             let accountExists = uData.filter(u => u.email == email);
             if (accountExists.length == 0) return res.status(400).send("That email is not associated with an account");
             
             let user = uData.find(u => u.email == email);
-            if (user.password == password){
+            if (bcrypt.compareSync(password, user.password)){
                 //Requirement 2.e. - Display error message on inactive account login attempt
                 if (user.active == "inactive") res.status(400).send("Login failed! Your account has been marked inactive, please contact the website admins to rectify this.");
                 //Requirement 2.d. - Display error message if account not verified
