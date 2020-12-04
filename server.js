@@ -35,7 +35,7 @@ router.get("/", (req,res)=>{
     /*--------------- GETs ---------------*/
 
     //Step 1 Get all subjects and descriptions
-    app.get("/courses", (req, res) => {
+    app.get("/secure/courses", (req, res) => {
         let myArr = [];
 
         for (var i = 0; i < courses.length; i++) {
@@ -46,7 +46,7 @@ router.get("/", (req,res)=>{
     });
 
     //Step 2 Get all course codes for a given subject code
-    app.get("/courses/:subject", (req, res) => {
+    app.get("/secure/courses/:subject", (req, res) => {
         let sInvalid = req.params.subject;
         let myArr = [];
 
@@ -70,7 +70,7 @@ router.get("/", (req,res)=>{
 
     //Step 3 Get timetable entry for a given subject code, course code, and optional component
     //No component specified
-    app.get("/courses/:subject/:course", (req, res) => {
+    app.get("/secure/courses/:subject/:course", (req, res) => {
         let sInvalid = req.params.subject;
         let corInvalid = req.params.course;
         let myArr = [];
@@ -97,7 +97,7 @@ router.get("/", (req,res)=>{
         } else res.status(400).send("Invalid input(s).");
     });
     //Component specified
-    app.get("/courses/:subject/:course/:component", (req, res) => {
+    app.get("/secure/courses/:subject/:course/:component", (req, res) => {
         let sInvalid = req.params.subject.toUpperCase();
         let corInvalid = req.params.course.toUpperCase();
         let comInvalid = req.params.component.toUpperCase();
@@ -128,7 +128,7 @@ router.get("/", (req,res)=>{
     });
 
     //Step 6 Get list of subject code,course code pairs for schedule
-    app.get("/schedule/view/:name", (req, res) => {
+    app.get("/secure/schedule/view/:name", (req, res) => {
         let nameInvalid = req.params.name;
         let myArr = [];
 
@@ -149,7 +149,7 @@ router.get("/", (req,res)=>{
     });
 
     //Step 8 Get list of schedule names and number of courses in each
-    app.get("/schedule/view", (req, res) => {
+    app.get("/secure/schedule/view", (req, res) => {
         let myArr = [];
 
         for (var i = 0; i < sData.length; i++) {
@@ -162,7 +162,7 @@ router.get("/", (req,res)=>{
     /*--------------- POSTs ---------------*/
 
     //Step 4 Create a new schedule
-    app.post("/schedule", (req, res) => {
+    app.post("/secure/schedule", (req, res) => {
         let nameInvalid = req.body.name;
 
         //Input validation (code from lab 1)
@@ -194,7 +194,7 @@ router.get("/", (req,res)=>{
     /*--------------- PUTs ---------------*/
 
     //Step 5 Save a list of subject code,course code pairs to the given schedule name
-    app.put("/schedule/:name", (req, res) => {
+    app.put("/secure/schedule/:name", (req, res) => {
         let nameInvalid = req.params.name;
         let sCoursesInvalid = req.body.sCourses;
         console.log(sCoursesInvalid.length);
@@ -238,7 +238,7 @@ router.get("/", (req,res)=>{
     /*--------------- DELETEs ---------------*/
 
     //Step 7 Delete a schedule with a given name
-    app.delete("/schedule/:name", (req, res) => {
+    app.delete("/secure/schedule/:name", (req, res) => {
         let nameInvalid = req.params.name;
 
         //Input validation (code from lab 1)
@@ -264,7 +264,7 @@ router.get("/", (req,res)=>{
     });
 
     //Step 9 Delete all schedules
-    app.delete("/schedule", (req, res) => {
+    app.delete("/secure/schedule", (req, res) => {
         let myArr = [];
         let newSchedule = JSON.stringify(myArr);
         fsfs.writeFileSync("./schedule.json", newSchedule);
@@ -312,10 +312,12 @@ router.get("/", (req,res)=>{
 
     //Step 3 Get timetable entry for a given subject code, course code, and optional component
     //No component specified
+    //pdated per Requirement 3.b. - Returns subject, catalog_nbr, className, class_section, ssr_component
     app.get("/courses/:subject/:course", (req, res) => {
         let sInvalid = req.params.subject;
         let corInvalid = req.params.course;
         let myArr = [];
+        let corLen = corInvalid.length;
 
         //Input validation (code from lab 1)
         let alpha = /^[0-9a-zA-Z]*$/;
@@ -324,15 +326,32 @@ router.get("/", (req,res)=>{
         let isStringValid = Boolean(validate && validate1);
         let s = validate;
         let cor = validate1;
+        
+        //note: must set toUpperCase() on the front end!
+
 
         console.log(s + " " + cor + " "); //testing
 
         if (isStringValid) {
+            //not functional right now
+            // if (cor.length == 4){
+            //     const course = courses.filter(c => c.subject == s);
+            //     console.log(course);
+            //     for (var i = 0; i < course.length; i++){
+            //         const corNoSuffix = courses.filter(c => c.catalog_nbr == cor);
+            //     }
+            // }
             const course = courses.filter(c => (c.subject == s) && (c.catalog_nbr == cor));
             if (course.length == 0) res.status(404).send("This subject code doesn't exist.");
 
             for (var i = 0; i < course.length; i++) {
-                myArr[i] = "Start time: " + course[i].course_info[0].start_time + " End time: " + course[i].course_info[0].end_time + " on " + course[i].course_info[0].days;
+                //myArr[i] = "Start time: " + course[i].course_info[0].start_time + " End time: " + course[i].course_info[0].end_time + " on " + course[i].course_info[0].days;
+                //myArr[i] = course[i].subject + " " + course[i].catalog_nbr + " " + course[i].className + " " + course[i].course_info[0].class_section + " " + course[i].course_info[0].ssr_component;
+                myArr[0] = course[i].subject;
+                myArr[1] = course[i].catalog_nbr;
+                myArr[2] = course[i].className;
+                myArr[3] = course[i].course_info[0].class_section;
+                myArr[4] = course[i].course_info[0].ssr_component;
             }
 
             res.send(myArr);
