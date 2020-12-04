@@ -154,7 +154,7 @@ router.get("/", (req,res)=>{
     });
 
     //Step 6 Get list of subject code,course code pairs for schedule
-    app.get("/secure/schedule/view/:name", (req, res) => {
+    app.get("/secure/schedule/view/:name", authenticateToken, (req, res) => {
         let nameInvalid = req.params.name;
         let myArr = [];
 
@@ -175,11 +175,14 @@ router.get("/", (req,res)=>{
     });
 
     //Step 8 Get list of schedule names and number of courses in each
-    app.get("/secure/schedule/view", (req, res) => {
+    app.get("/secure/schedule/view", authenticateToken, (req, res) => {
         let myArr = [];
 
-        for (var i = 0; i < sData.length; i++) {
-            myArr[i] = "Name: " + sData[i].name + " Number of courses: " + sData[i].sCourses.length;
+        //Only show schedules made by the current user
+        const schedule = sData.filter(s => s.username === req.user.username);
+
+        for (var i = 0; i < schedule.length; i++) {
+            myArr[i] = "Name: " + schedule[i].name + " Number of courses: " + schedule[i].sCourses.length;
         }
 
         res.send(myArr);
@@ -232,7 +235,7 @@ router.get("/", (req,res)=>{
                 username: username,
                 descr: descr,
                 date: date,
-                sCourses: [],
+                sCourses: sCourses,
                 visibility: visibility
             };
     
@@ -501,36 +504,6 @@ router.get("/", (req,res)=>{
 
     /*--------------- POSTs ---------------*/
 
-    // //Step 4 Create a new schedule
-    // app.post("/schedule", (req, res) => {
-    //     let nameInvalid = req.body.name;
-
-    //     //Input validation (code from lab 1)
-    //     let alpha = /^[0-9a-zA-Z\w\s]*$/;
-    //     let validate = alpha.exec(nameInvalid); //validate the string
-    //     let isStringValid = Boolean(validate);
-    //     let name = validate[0];
-
-    //     if (isStringValid) {
-    //         //throw error if it already exists
-    //         let exists = sData.filter(s => s.name == name);
-    //         if (exists.length != 0) return res.status(400).send("This name already exists");
-
-    //         const schedule = {
-    //             name: name,
-    //             sCourses: []
-    //         };
-
-    //         console.log(name);
-
-    //         sData.push(schedule);
-    //         let newSchedule = JSON.stringify(sData);
-    //         fs.writeFileSync("./database/schedule.json", newSchedule);
-
-    //         res.send(schedule);
-    //     } else res.status(400).send("Invalid input.");
-    // });
-
     //Requirement 2.a. - Create an account
     app.post("/login/create/:username/:password/:email", (req,res)=>{
         let usernameInvalid = req.params.username;
@@ -624,48 +597,6 @@ router.get("/", (req,res)=>{
 
     /*--------------- PUTs ---------------*/
 
-    // //Step 5 Save a list of subject code,course code pairs to the given schedule name
-    // app.put("/schedule/:name", (req, res) => {
-    //     let nameInvalid = req.params.name;
-    //     let sCoursesInvalid = req.body.sCourses;
-    //     console.log(sCoursesInvalid.length);
-
-    //     //Input validation (code from lab 1)
-    //     let alpha = /^[0-9a-zA-Z\w\s\[\]\,\"]*$/;
-    //     let validate = alpha.exec(nameInvalid); //validate the string
-    //     //let validate1 = alpha.exec(sCoursesInvalid);
-    //     let myArr = [];
-    //     let sCourses = [];
-    //     for (var i = 0; i < sCoursesInvalid.length; i++) {
-    //         let validate1 = alpha.exec(sCoursesInvalid[i]);
-    //         myArr[i] = validate1;
-    //     }
-    //     let isStringValid = Boolean(validate);
-    //     let name = validate[0];
-
-    //     for (var i = 0; i < myArr.length; i++) {
-    //         sCourses[i] = myArr[i];
-    //     }
-
-    //     if (isStringValid) {
-    //         //throw error if the schedule name does not exist
-    //         let exists = sData.filter(s => s.name == name);
-    //         if (exists.length == 0) return res.status(400).send("Invalid schedule name");
-
-    //         let schedule = sData.find(s => s.name == name);
-    //         //schedule.sCourses = sCourses;
-    //         console.log(sCourses.length);
-    //         for (var i = 0; i < sCourses.length; i++) {
-    //             schedule.sCourses[i] = sCourses[i];
-    //         }
-
-    //         let newSchedule = JSON.stringify(sData);
-    //         fs.writeFileSync("./schedule.json", newSchedule);
-
-    //         res.send(schedule);
-    //     } else res.status(400).send("Invalid input.");
-    // });
-
     //Requirement 2.d. - Verification of email
     app.put("/verify/:email", (req,res)=>{
         //just in case, validate it again
@@ -696,40 +627,6 @@ router.get("/", (req,res)=>{
 
     /*--------------- DELETEs ---------------*/
 
-    // //Step 7 Delete a schedule with a given name
-    // app.delete("/schedule/:name", (req, res) => {
-    //     let nameInvalid = req.params.name;
-
-    //     //Input validation (code from lab 1)
-    //     let alpha = /^[0-9a-zA-Z\w\s]*$/;
-    //     let validate = alpha.exec(nameInvalid); //validate the string
-    //     let isStringValid = Boolean(validate);
-    //     let name = validate[0];
-
-    //     if (isStringValid) {
-    //         //throw error if the schedule name does not exist
-    //         let exists = sData.filter(s => s.name == name);
-    //         if (exists.length == 0) return res.status(400).send("Invalid schedule name");
-
-    //         let schedule = sData.find(s => s.name == name);
-
-    //         sData.splice(sData.indexOf(schedule), 1);
-
-    //         let newSchedule = JSON.stringify(sData);
-    //         fsfs.writeFileSync("./schedule.json", newSchedule);
-
-    //         res.send(schedule);
-    //     } else res.status(400).send("Invalid input.");
-    // });
-
-    // //Step 9 Delete all schedules
-    // app.delete("/schedule", (req, res) => {
-    //     let myArr = [];
-    //     let newSchedule = JSON.stringify(myArr);
-    //     fsfs.writeFileSync("./schedule.json", newSchedule);
-
-    //     res.send(sData);
-    // });
 }
 
 {/*--------------- ADMIN FUNCTIONALITY ---------------*/
@@ -773,6 +670,20 @@ router.get("/", (req,res)=>{
 }
 
 app.use('/api', router); // Set the routes at '/api'
+
+function authenticateToken(req,res,next){
+    const authHeader = req.headers["authorization"];
+    const token = authHeader && authHeader.split(" ")[1];
+    if (token == null) return res.status(401).send("Invalid token!");
+    
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, newUser)=>{
+        //catch an error
+        if (err) return res.status(403).send("Access forbidden!");
+        req.user = newUser;
+        next();
+    });
+}
+
 
 //start the server
 const port = process.env.port || 3000;
