@@ -442,9 +442,47 @@ router.get("/", (req,res)=>{
 
             sData.push(schedule);
             let newSchedule = JSON.stringify(sData);
-            fs.writeFileSync("./schedule.json", newSchedule);
+            fs.writeFileSync("./database/schedule.json", newSchedule);
 
             res.send(schedule);
+        } else res.status(400).send("Invalid input.");
+    });
+
+    //Requirement 2.a. - Create an account
+    app.post("/login/create/:username/:password/:email", (req,res)=>{
+        let usernameInvalid = req.params.username;
+        let password = req.params.password;
+        let email = req.params.email;
+
+        //Input validation (code from lab 1)
+        let alpha = /^[0-9a-zA-Z]*$/;
+        let validate = alpha.exec(usernameInvalid); //validate the string
+        let isStringValid = Boolean(validate);
+        let username = validate[0];
+
+        //Requirement 2.c. - Input validation for email
+
+
+        if(isStringValid){
+            //throw error if it already exists
+            let usernameExists = uData.filter(u => u.username == username);
+            let emailExists = uData.filter(u => u.email == email);
+            if ((usernameExists.length != 0) && (emailExists.length != 0)) return res.status(400).send("This account already exists!");
+            else if (usernameExists.length != 0) return res.status(400).send("This username is taken!");
+            else if (emailExists.length != 0) return res.status(400).send("There is already an account registered to this email address!");
+
+            const newUser = {
+                username: username,
+                password: password,
+                email: email,
+                privileges: "standard",
+                active: "active"
+            };
+
+            uData.push(newUser);
+            let newUsers = JSON.stringify(uData);
+            fs.writeFileSync("./database/users.json", newUsers);
+            res.send(newUser);
         } else res.status(400).send("Invalid input.");
     });
 
@@ -532,6 +570,7 @@ router.get("/", (req,res)=>{
 
 {/*--------------- ADMIN FUNCTIONALITY ---------------*/
     //Requirement 5.a. - Special admin access
+    //These functions will only appear to the "admin" user
 
     /*--------------- PUTs ---------------*/
 
@@ -545,8 +584,8 @@ router.get("/", (req,res)=>{
         let user = uData.find(u => u.username == username);
         user.privileges = "admin";
 
-        let newUser = JSON.stringify(uData);
-        fs.writeFileSync("./database/users.json", newUser);
+        let newUsers = JSON.stringify(uData);
+        fs.writeFileSync("./database/users.json", newUsers);
 
         res.send(user);
     });
@@ -562,8 +601,8 @@ router.get("/", (req,res)=>{
         if (user.active == "active") user.active = "inactive";
         else user.active = "active";
 
-        let newUser = JSON.stringify(uData);
-        fs.writeFileSync("./database/users.json", newUser);
+        let newUsers = JSON.stringify(uData);
+        fs.writeFileSync("./database/users.json", newUsers);
 
         res.send(user);
     });

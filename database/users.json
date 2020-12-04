@@ -2,14 +2,14 @@
     {
         "username": "admin",
         "password": "password1234",
-        "displayName": "Admin",
+        "email": "admin@localhost.com",
         "privileges": "admin",
         "active": "active"
     },
     {
         "username": "kyle",
         "password": "monster",
-        "displayName": "Kyle",
+        "email": "kyle@test.com",
         "privileges": "standard",
         "active": "active"
     }
