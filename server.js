@@ -636,7 +636,9 @@ router.get("/", (req,res)=>{
     /*--------------- PUTs ---------------*/
 
     //Requirement 5.b. - Admin can grant admin access
-    app.put("/admin/grant/:username", (req,res)=>{
+    app.put("/admin/grant/:username", authenticateToken, (req,res)=>{
+        //throw error if not an admin
+        if (req.user.privileges == "standard") return res.status(403).send("Access forbidden!");
         //throw error if the username does not exist
         let username = req.params.username;
         let exists = uData.filter(u => u.username == username);
@@ -652,7 +654,9 @@ router.get("/", (req,res)=>{
     });
 
     //Requirement 5.d. - Admin can deactivate/reactivate accounts
-    app.put("/admin/active/:username", (req,res)=>{
+    app.put("/admin/active/:username", authenticateToken, (req,res)=>{
+        //throw error if not an admin
+        if (req.user.privileges == "standard") return res.status(403).send("Access forbidden!");
         //throw error if the username does not exist
         let username = req.params.username;
         let exists = uData.filter(u => u.username == username);
@@ -666,6 +670,17 @@ router.get("/", (req,res)=>{
         fs.writeFileSync("./database/users.json", newUsers);
 
         res.send(user);
+    });
+
+    //Requirement 7.a. - 7.c. - Edit site policy stuff
+    app.put("/admin/updatePolicies", authenticateToken, (req,res)=>{
+        //throw error if not an admin
+        if (req.user.privileges == "standard") return res.status(403).send("Access forbidden!");
+
+        // let filePath = req.body.file;
+        // let data = req.body.data;
+
+        // let newData = JSON.stringify()
     });
 }
 
