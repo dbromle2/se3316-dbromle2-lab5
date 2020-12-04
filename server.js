@@ -333,28 +333,30 @@ router.get("/", (req,res)=>{
         console.log(s + " " + cor + " "); //testing
 
         if (isStringValid) {
-            //not functional right now
-            // if (cor.length == 4){
-            //     const course = courses.filter(c => c.subject == s);
-            //     console.log(course);
-            //     for (var i = 0; i < course.length; i++){
-            //         const corNoSuffix = courses.filter(c => c.catalog_nbr == cor);
-            //     }
-            // }
-            const course = courses.filter(c => (c.subject == s) && (c.catalog_nbr == cor));
-            if (course.length == 0) res.status(404).send("This subject code doesn't exist.");
-
-            for (var i = 0; i < course.length; i++) {
-                //myArr[i] = "Start time: " + course[i].course_info[0].start_time + " End time: " + course[i].course_info[0].end_time + " on " + course[i].course_info[0].days;
-                //myArr[i] = course[i].subject + " " + course[i].catalog_nbr + " " + course[i].className + " " + course[i].course_info[0].class_section + " " + course[i].course_info[0].ssr_component;
-                myArr[0] = course[i].subject;
-                myArr[1] = course[i].catalog_nbr;
-                myArr[2] = course[i].className;
-                myArr[3] = course[i].course_info[0].class_section;
-                myArr[4] = course[i].course_info[0].ssr_component;
-            }
-
-            res.send(myArr);
+            //Soft search for catalog_nbr without suffix
+            if (corLen == 4){
+                const course = courses.filter(c => (c.subject == s) && (c.catalog_nbr.substring(0,4) == cor));
+                if (course.length == 0) res.status(404).send("This subject code doesn't exist.2");
+                for (var i = 0; i < course.length; i++) {
+                    myArr[0] = course[i].subject;
+                    myArr[1] = course[i].catalog_nbr;
+                    myArr[2] = course[i].className;
+                    myArr[3] = course[i].course_info[0].class_section;
+                    myArr[4] = course[i].course_info[0].ssr_component;
+                }
+            } else {
+                //Search for catalog_nbr WITH suffix
+                const course = courses.filter(c => (c.subject == s) && (c.catalog_nbr == cor));
+                if (course.length == 0) res.status(404).send("This subject code doesn't exist.");
+                for (var i = 0; i < course.length; i++) {
+                    //myArr[i] = course[i].subject + " " + course[i].catalog_nbr + " " + course[i].className + " " + course[i].course_info[0].class_section + " " + course[i].course_info[0].ssr_component;
+                    myArr[0] = course[i].subject;
+                    myArr[1] = course[i].catalog_nbr;
+                    myArr[2] = course[i].className;
+                    myArr[3] = course[i].course_info[0].class_section;
+                    myArr[4] = course[i].course_info[0].ssr_component;
+                }
+            }res.send(myArr);
         } else res.status(400).send("Invalid input(s).");
     });
     //Requirement 3.c. - Expand search result to show all remaining info
