@@ -6,6 +6,8 @@ const app = express();
 const fs = require("fs");
 const fsfs = require("fs");
 const router = express.Router();
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
 
 let rawdata = fs.readFileSync("./database/Lab3-timetable-data.json");
 let courses = JSON.parse(rawdata);
@@ -482,47 +484,6 @@ router.get("/", (req,res)=>{
         res.send(myArr);
     });
 
-    //Requirement 2.a. - Login mechanism
-    app.get("/login/:email/:password", (req,res)=>{
-        //validate the inputs
-        let emailInvalid = req.params.email;
-        let passwordInvalid = req.params.password;
-
-        //Requirement 2.c. - Input validation for email
-        /*regex taken from https://www.w3.org/TR/2012/WD-html-markup-20120329/input.email.html
-        (why build my own when I can use the official one?)*/
-        let emailRegex = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/ 
-        let isEmailValid = emailRegex.test(emailInvalid);
-
-        //password regex: minimum of 8, maximum of 20 of any combination of characters, numbers, and select special characters
-        let passwordRegex = /^[a-zA-z0-9!@#$%*&]{8,20}$/;
-        let isPasswordValid = Boolean(passwordRegex.exec(passwordInvalid));
-
-        if (isEmailValid && isPasswordValid){
-            //now define the valid inputs
-            let email = emailInvalid;
-            let password = passwordInvalid;
-
-            //throw error if the schedule name does not exist
-            let accountExists = uData.filter(u => u.email == email);
-            if (accountExists.length == 0) return res.status(400).send("That email is not associated with an account");
-            
-            let user = uData.find(u => u.email == email);
-            if (user.password == password){
-                //Requirement 2.e. - Display error message on inactive account login attempt
-                if (user.active == "inactive") res.status(400).send("Login failed! Your account has been marked inactive, please contact the website admins to rectify this.");
-                //Requirement 2.d. - Display error message if account not verified
-                else if (user.verified != "verified") res.status(400).send("Login failed! Please verify your account.");
-                else {
-                    let myArr = [];
-                    myArr[0] = user.username;
-                    myArr[1] = user.privileges;
-
-                    return res.send(myArr);
-                }
-            } else res.status(400).send("Login failed! Incorrect password, try again.");
-        } else res.status(400).send("Login failed!");
-    });
     //Requirement 7.a. - Publicly accessible security and privacy policy
     app.get("/security-privacy-policy", (req,res)=>{
         res.send(sitePolicies.securityPrivacy);
@@ -615,6 +576,50 @@ router.get("/", (req,res)=>{
         else if (isStringValid == false && isEmailValid == true) res.status(400).send("Invalid username input.");
         else if (isStringValid == true && isEmailValid == false) res.status(400).send("Invalid email input.");
         else res.status(400).send("Invalid inputs.");
+    });
+
+    //Requirement 2.a. - Login mechanism
+    app.post("/login", (req,res)=>{
+        //Authenticate the user
+
+        //validate the inputs
+        let emailInvalid = req.body.email;
+        let passwordInvalid = req.body.password;
+
+        //Requirement 2.c. - Input validation for email
+        /*regex taken from https://www.w3.org/TR/2012/WD-html-markup-20120329/input.email.html
+        (why build my own when I can use the official one?)*/
+        let emailRegex = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/ 
+        let isEmailValid = emailRegex.test(emailInvalid);
+
+        //password regex: minimum of 8, maximum of 20 of any combination of characters, numbers, and select special characters
+        let passwordRegex = /^[a-zA-z0-9!@#$%*&]{8,20}$/;
+        let isPasswordValid = Boolean(passwordRegex.exec(passwordInvalid));
+
+        if (isEmailValid && isPasswordValid){
+            //now define the valid inputs
+            let email = emailInvalid;
+            let password = passwordInvalid;
+
+            //throw error if the schedule name does not exist
+            let accountExists = uData.filter(u => u.email == email);
+            if (accountExists.length == 0) return res.status(400).send("That email is not associated with an account");
+            
+            let user = uData.find(u => u.email == email);
+            if (user.password == password){
+                //Requirement 2.e. - Display error message on inactive account login attempt
+                if (user.active == "inactive") res.status(400).send("Login failed! Your account has been marked inactive, please contact the website admins to rectify this.");
+                //Requirement 2.d. - Display error message if account not verified
+                else if (user.verified != "verified") res.status(400).send("Login failed! Please verify your account.");
+                else {
+                    
+                    const newUser = {username: user.username, privileges: user.privileges};
+                    const accessToken = jwt.sign(newUser, process.env.ACCESS_TOKEN_SECRET);
+
+                    return res.send(accessToken);
+                }
+            } else res.status(400).send("Login failed! Incorrect password, try again.");
+        } else res.status(400).send("Login failed!");
     });
 
     /*--------------- PUTs ---------------*/
