@@ -452,18 +452,24 @@ router.get("/", (req,res)=>{
     app.post("/login/create/:username/:password/:email", (req,res)=>{
         let usernameInvalid = req.params.username;
         let password = req.params.password;
-        let email = req.params.email;
+        let emailInvalid = req.params.email;
 
-        //Input validation (code from lab 1)
+        //Input validation (modified from code from lab 1)
         let alpha = /^[0-9a-zA-Z]*$/;
-        let validate = alpha.exec(usernameInvalid); //validate the string
-        let isStringValid = Boolean(validate);
-        let username = validate[0];
 
         //Requirement 2.c. - Input validation for email
+        /*regex taken from https://www.w3.org/TR/2012/WD-html-markup-20120329/input.email.html
+        (why build my own when I can use the official one?)*/
+        let emailRegex = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/ 
 
+        let isStringValid = alpha.test(usernameInvalid);
+        let isEmailValid = emailRegex.test(emailInvalid);
 
-        if(isStringValid){
+        if(isStringValid && isEmailValid){
+            //now define the valid inputs
+            let username = usernameInvalid;
+            let email = emailInvalid;
+
             //throw error if it already exists
             let usernameExists = uData.filter(u => u.username == username);
             let emailExists = uData.filter(u => u.email == email);
@@ -483,7 +489,10 @@ router.get("/", (req,res)=>{
             let newUsers = JSON.stringify(uData);
             fs.writeFileSync("./database/users.json", newUsers);
             res.send(newUser);
-        } else res.status(400).send("Invalid input.");
+        } //throw errors for bad inputs
+        else if (isStringValid == false && isEmailValid == true) res.status(400).send("Invalid username input.");
+        else if (isStringValid == true && isEmailValid == false) res.status(400).send("Invalid email input.");
+        else res.status(400).send("Invalid inputs.");
     });
 
     /*--------------- PUTs ---------------*/
