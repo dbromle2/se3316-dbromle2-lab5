@@ -192,7 +192,10 @@ router.get("/", (req,res)=>{
         let usernameInvalid = req.body.username;
         let descrInvalid = req.body.descr;
         let visibility = req.body.visibility;
-    
+        let sCoursesInvalid = req.body.sCourses;
+        //Requirement 4.f. - Enforce required inputs
+        if(sCoursesInvalid == undefined) return res.status(400).send("Error: cannot create schedule, missing required fields.");
+
         //Input validation (code from lab 1)
         let alpha = /^[0-9a-zA-Z\w\s]*$/;
         let validateName = alpha.exec(nameInvalid); //validate the strings
@@ -202,8 +205,21 @@ router.get("/", (req,res)=>{
         let name = validateName[0];
         let username = validateUsername[0];
         let descr = validateDescr[0];
+        if (descr == "undefined") descr = ""; //Requirement 4.a. - descr is optional
+        //Input validation for the courses array(code from lab3)
+        let myArr = [];
+        let sCourses = [];
+        for (var i = 0; i < sCoursesInvalid.length; i++) {
+            let validate1 = alpha.exec(sCoursesInvalid[i]);
+            myArr[i] = validate1;
+        }
+        for (var i = 0; i < myArr.length; i++) {
+            sCourses[i] = myArr[i];
+        }
     
         if(isStringValid){
+            //Requirement 4.f. - Enforce required inputs
+            if(name == "undefined" || sCourses == "undefined") return res.status(400).send("Error: cannot create schedule, missing required fields.");
             //throw error if it already exists
             let exists = sData.filter(s => s.name == name);
             if(exists.length != 0) return res.status(400).send("This name already exists");
@@ -234,7 +250,9 @@ router.get("/", (req,res)=>{
     app.put("/secure/schedule/:name", (req, res) => {
         let nameInvalid = req.params.name;
         let sCoursesInvalid = req.body.sCourses;
-        console.log(sCoursesInvalid.length);
+        //Requirement 4.f. - Enforce required inputs
+        if(sCoursesInvalid == undefined) return res.status(400).send("Error: cannot create schedule, missing required fields.");
+        console.log(sCoursesInvalid.length);        
 
         //Input validation (code from lab 1)
         let alpha = /^[0-9a-zA-Z\w\s\[\]\,\"]*$/;
@@ -254,6 +272,8 @@ router.get("/", (req,res)=>{
         }
 
         if (isStringValid) {
+            //Requirement 4.f. - Enforce required inputs
+            if(name == "undefined" || sCourses == "undefined") return res.status(400).send("Error: cannot create schedule, missing required fields.");
             //throw error if the schedule name does not exist
             let exists = sData.filter(s => s.name == name);
             if (exists.length == 0) return res.status(400).send("Invalid schedule name");
