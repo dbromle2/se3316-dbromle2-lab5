@@ -539,6 +539,34 @@ router.get("/", (req,res)=>{
         } else res.status(400).send("Invalid input.");
     });
 
+    //Requirement 2.d. - Verification of email
+    app.put("/verify/:email", (req,res)=>{
+        //just in case, verify it again
+        let emailInvalid = req.params.email;
+
+        //Requirement 2.c. - Input validation for email
+        /*regex taken from https://www.w3.org/TR/2012/WD-html-markup-20120329/input.email.html
+        (why build my own when I can use the official one?)*/
+        let emailRegex = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/ 
+
+        let isEmailValid = emailRegex.test(emailInvalid);
+
+        if (isEmailValid){
+            let email = emailInvalid;
+            //throw error if the schedule name does not exist
+            let exists = uData.filter(u => u.email == email);
+            if (exists.length == 0) return res.status(400).send("That email is not associated with an account");
+
+            let user = uData.find(u => u.email == email);
+            user.verified = "verified";
+
+            let newUsers = JSON.stringify(uData);
+            fs.writeFileSync("./database/users.json", newUsers);
+
+            res.send(user);
+        } else res.status(400).send("Invalid input.");
+    });
+
     /*--------------- DELETEs ---------------*/
 
     //Step 7 Delete a schedule with a given name

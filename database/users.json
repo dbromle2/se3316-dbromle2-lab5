@@ -4,13 +4,15 @@
         "password": "password1234",
         "email": "admin@localhost.com",
         "privileges": "admin",
-        "active": "active"
+        "active": "active",
+        "verified": "verified"
     },
     {
         "username": "kyle",
         "password": "monster",
         "email": "kyle@test.com",
         "privileges": "standard",
-        "active": "active"
+        "active": "active",
+        "verified": "verified"
     }
 ]
