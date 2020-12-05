@@ -301,7 +301,7 @@ router.get("/", (req,res)=>{
     /*--------------- DELETEs ---------------*/
 
     //Step 7 Delete a schedule with a given name
-    app.delete("/secure/schedule/:name", (req, res) => {
+    app.delete("/secure/schedule/:name", authenticateToken, (req, res) => {
         let nameInvalid = req.params.name;
 
         //Input validation (code from lab 1)
@@ -310,12 +310,17 @@ router.get("/", (req,res)=>{
         let isStringValid = Boolean(validate);
         let name = validate[0];
 
+        //only verified users can do this
+        if (req.user.privileges != "standard") return res.status(403).send("Access forbidden!");
+        
+
         if (isStringValid) {
             //throw error if the schedule name does not exist
             let exists = sData.filter(s => s.name == name);
             if (exists.length == 0) return res.status(400).send("Invalid schedule name");
 
-            let schedule = sData.find(s => s.name == name);
+            //Only allow schedules made by the current user
+            let schedule = sData.find(s => (s.name == name) && (s.username === req.user.username));
 
             sData.splice(sData.indexOf(schedule), 1);
 
@@ -327,8 +332,12 @@ router.get("/", (req,res)=>{
     });
 
     //Step 9 Delete all schedules
-    app.delete("/secure/schedule", (req, res) => {
+    app.delete("/secure/schedule", authenticateToken, (req, res) => {
+        //Only delete schedules made by the current user
+        const schedule = sData.filter(s => s.username === req.user.username);
+
         let myArr = [];
+
         let newSchedule = JSON.stringify(myArr);
         fsfs.writeFileSync("./schedule.json", newSchedule);
 
@@ -518,7 +527,7 @@ router.get("/", (req,res)=>{
             else if (usernameExists.length != 0) return res.status(400).send("This username is taken!");
             else if (emailExists.length != 0) return res.status(400).send("There is already an account registered to this email address!");
 
-            //Hash the password so it's secure
+            //Hash the password so it's secure. Using bcrypt
             const hash = bcrypt.hashSync(password, 10)
             const newUser = {
                 username: username,
@@ -540,8 +549,6 @@ router.get("/", (req,res)=>{
 
     //Requirement 2.a. - Login mechanism
     app.post("/login", (req,res)=>{
-        //Authenticate the user
-
         //validate the inputs
         let emailInvalid = req.body.email;
 
@@ -567,7 +574,7 @@ router.get("/", (req,res)=>{
             if (accountExists.length == 0) return res.status(400).send("That email is not associated with an account");
             
             let user = uData.find(u => u.email == email);
-            if (bcrypt.compareSync(password, user.password)){
+            if (bcrypt.compareSync(password, user.password)){//bcrypt for hashing password
                 //Requirement 2.e. - Display error message on inactive account login attempt
                 if (user.active == "inactive") res.status(400).send("Login failed! Your account has been marked inactive, please contact the website admins to rectify this.");
                 //Requirement 2.d. - Display error message if account not verified
@@ -614,12 +621,13 @@ router.get("/", (req,res)=>{
     });
 
     /*--------------- DELETEs ---------------*/
-
+    //nothing to delete for unverified users
 }
 
 {/*--------------- ADMIN FUNCTIONALITY ---------------*/
-    //Requirement 5.a. - Special admin access
-    //These functions will only appear to the "admin" user
+    /*//Requirement 5.a. - Special admin access
+    //These functions will only appear to the "admin" user thanks to the following line of code:
+    if (req.user.privileges == "standard") return res.status(403).send("Access forbidden!");*/
 
     /*--------------- PUTs ---------------*/
 
