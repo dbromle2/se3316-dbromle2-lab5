@@ -1,0 +1,20 @@
+<div>
+    <h1>SE 3316 Lab 5</h1>
+    <div>
+      <h3>About:</h3>
+      <p>This website was created for the lab5 final project in SE3316 Web Technologies.
+         The website provides functionality similar to the Western timetable, where you can search for courses and see schedules others have made.
+         Additionally, you can make and save your own schedules after creating an account on this website.
+      </p>
+      <div class="main-div">
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+          <div>Login: </div>
+          <label>
+            <input [(ngModel)]="email" placeholder="email">
+          </label>
+          <input [(ngModel)]="password" type="password" placeholder="password">
+          <button type="submit">Login</button>
+        </form>
+      </div>
+    </div>
+  </div>

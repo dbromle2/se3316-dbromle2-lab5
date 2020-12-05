@@ -498,10 +498,15 @@ router.get("/", (req,res)=>{
         (why build my own when I can use the official one?)*/
         let emailRegex = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/ 
 
+        //password regex: minimum of 8, maximum of 20 of any combination of characters, numbers, and select special characters
+        let passwordRegex = /^[a-zA-z0-9!@#$%*&]{8,20}$/;
+        let isPasswordValid = Boolean(passwordRegex.exec(passwordInvalid));
+        if (isPasswordValid == false) return res.status(400).send("Bad password! Password must be a min length 8, max length 20, of any conbination of characters, numbers, and the special characters !, @, #, $, %, *, or &");
+
         let isStringValid = alpha.test(usernameInvalid);
         let isEmailValid = emailRegex.test(emailInvalid);
 
-        if(isStringValid && isEmailValid){
+        if(isStringValid && isEmailValid && isPasswordValid){
             //now define the valid inputs
             let username = usernameInvalid;
             let email = emailInvalid;
@@ -660,10 +665,24 @@ router.get("/", (req,res)=>{
         //throw error if not an admin
         if (req.user.privileges == "standard") return res.status(403).send("Access forbidden!");
 
-        // let filePath = req.body.file;
-        // let data = req.body.data;
+        let policy = req.body.policy;
+        let data = req.body.data;
 
-        // let newData = JSON.stringify()
+        if (policy == "securityPrivacy"){
+            sitePolicies.securityPrivacy = data;
+        }
+        else if (policy == "acceptableUse"){
+            sitePolicies.acceptableUse = data;
+        }
+        else if (policy == "dmcaTakedown"){
+            sitePolicies.dmcaTakedown = data;
+        } else return res.status(400).send("Error, could not find that policy!");
+
+        let newPolicies = JSON.stringify(sitePolicies);
+        fs.writeFileSync("./database/site-policies.json", newPolicies);
+
+        res.send(policy);
+
     });
 }
 
@@ -684,5 +703,5 @@ function authenticateToken(req,res,next){
 
 
 //start the server
-const port = process.env.port || 3000;
+const port = process.env.port || 4200;
 app.listen(port, () => console.log("Listening on port " + port + "."));
