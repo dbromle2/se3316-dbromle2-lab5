@@ -7,14 +7,14 @@
          Additionally, you can make and save your own schedules after creating an account on this website.
       </p>
       <div class="main-div">
-        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <!-- <form [formGroup]="loginForm" (ngSubmit)="onSubmit()"> //DSB Edit 28 Dec 2020-> removing problem line to build webapp to allow it to run on AWS per lab5 Submission Instructions(7) -->
           <div>Login: </div>
           <label>
-            <input [(ngModel)]="email" placeholder="email">
+            <!-- <input [(ngModel)]="email" placeholder="email"> //DSB Edit 28 Dec 2020-> removing problem line to build webapp to allow it to run on AWS per lab5 Submission Instructions(7) -->
           </label>
-          <input [(ngModel)]="password" type="password" placeholder="password">
+          <!-- <input [(ngModel)]="password" type="password" placeholder="password"> //DSB Edit 28 Dec 2020-> removing problem line to build webapp to allow it to run on AWS per lab5 Submission Instructions(7) -->
           <button type="submit">Login</button>
-        </form>
+        <!-- </form> //DSB Edit 28 Dec 2020-> removing problem line to build webapp to allow it to run on AWS per lab5 Submission Instructions(7) -->
       </div>
     </div>
   </div>

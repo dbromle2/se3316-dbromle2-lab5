@@ -25,9 +25,9 @@ export class LoginComponent implements OnInit {
 
   onSubmit() {
     this.submitted = true;
-    this.loginService.login(this.email.value, this.password.value).subscribe((data) =>{
+    //this.loginService.login(this.email.value, this.password.value).subscribe((data) =>{ //DSB Edit 28 Dec 2020-> removing problem line to build webapp to allow it to run on AWS per lab5 Submission Instructions(7)
 
-    })
+    //}) //DSB Edit 28 Dec 2020-> removing problem line to build webapp to allow it to run on AWS per lab5 Submission Instructions(7)
   }
 
 }
