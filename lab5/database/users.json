@@ -1,0 +1,25 @@
+[
+    {
+        "username": "admin",
+        "password": "$2b$10$x6alZRid3ZEGPFlz70kuyuQgfatY/SlIP7zpNpibaNcXfoqydPhYS",
+        "email": "admin@localhost.com",
+        "privileges": "admin",
+        "active": "active",
+        "verified": "verified"
+    },
+    {
+        "username": "kyle",
+        "password": "$2b$10$n34VKo.O.PoTH6zy9KrgP.ZR7Z8Iw1sIdv/qId51h03qsjksBdzHK",
+        "email": "kyle@test.com",
+        "privileges": "standard",
+        "active": "active",
+        "verified": "verified"
+    },
+    {
+        "username": "test2acc",
+        "password": "$2b$10$Ukhtvi5vxUqm5cNbwxw2y.gVGLc0LCUYOaBwfrtV/snbDOzKrwzsa",
+        "email": "test2acc@test.com",
+        "privileges": "standard",
+        "active": "active"
+    }
+]

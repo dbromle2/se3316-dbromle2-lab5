@@ -1,13 +1,6 @@
 //dbromle2
 //se3316 lab5
 
-//DSB Edit 28 Dec 2020-> removing problem line to build webapp to allow it to run on AWS per lab5 Submission Instructions(7)
-const path = require('path');// Point to directory containing static files
-app.use(express.static(path.join(__dirname, 'dist/lab5')));
-//catch all other routes to return the index file
-app.get('*', (req,res) => {res.sendFile(path.join(__dirname,'dist/lab5/index.html'));});
-//DSB Edit 28 Dec 2020-> removing problem line to build webapp to allow it to run on AWS per lab5 Submission Instructions(7)
-
 const express = require("express");
 const app = express();
 const fs = require("fs");
